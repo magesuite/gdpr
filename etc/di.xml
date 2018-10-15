@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Sales\Model\Order">
+        <plugin name="hide_customer_data" type="MageSuite\Gdpr\Plugin\HideCustomerData\Order" sortOrder="10" />
+    </type>
+
+    <type name="Magento\Sales\Model\Order\Address">
+        <plugin name="hide_customer_data" type="MageSuite\Gdpr\Plugin\HideCustomerData\Address" sortOrder="10" />
+    </type>
+
+    <type name="Magento\Ui\Component\Listing">
+        <plugin name="hide_customer_data" type="MageSuite\Gdpr\Plugin\HideCustomerData\GridListing" sortOrder="10" />
+    </type>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\Reporting">
+        <plugin name="hide_customer_data" type="MageSuite\Gdpr\Plugin\HideCustomerData\Export" sortOrder="10" />
+    </type>
+
+    <type name="Magento\Sales\Block\Adminhtml\Order\Payment">
+        <plugin name="hide_payment_information" type="MageSuite\Gdpr\Plugin\HideCustomerData\PaymentInformation" sortOrder="10" />
+    </type>
+
+    <type name="Magento\Payment\Block\Info">
+        <plugin name="hide_pdf_payment_information" type="MageSuite\Gdpr\Plugin\HideCustomerData\Pdf\PaymentInformation" sortOrder="10" />
+    </type>
+
+    <type name="Magento\Customer\Controller\Adminhtml\Index\Edit">
+        <plugin name="hide_customer_edit" type="MageSuite\Gdpr\Plugin\Adminhtml\Index\AccessDeniedPageOnCustomerEdit" sortOrder="10" />
+    </type>
+
+    <type name="MageSuite\Gdpr\Plugin\HideCustomerData\GridListing">
+        <arguments>
+            <argument name="grids" xsi:type="array">
+                <item name="sales" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Grid\SalesGridAnonymization</item>
+                <item name="customer" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Grid\CustomerGridAnonymization</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="MageSuite\Gdpr\Plugin\HideCustomerData\Export">
+        <arguments>
+            <argument name="grids" xsi:type="array">
+                <item name="sales" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Export\SalesGridExportAnonymization</item>
+                <item name="customer" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Export\CustomerGridExportAnonymization</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="MageSuite\Gdpr\Helper\CustomerDataVisibility">
+        <arguments>
+            <argument name="whitelistedActions" xsi:type="array">
+                <item name="customer" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Actions\CustomerAction</item>
+                <item name="mui" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Actions\MuiAction</item>
+                <item name="order_shippment" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Actions\OrderShipmentAction</item>
+                <item name="sales_order" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Actions\SalesOrderAction</item>
+                <item name="sales_shippment" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Actions\SalesShipmentAction</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>
