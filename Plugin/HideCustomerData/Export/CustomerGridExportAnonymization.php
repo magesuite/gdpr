@@ -2,7 +2,7 @@
 
 namespace MageSuite\Gdpr\Plugin\HideCustomerData\Export;
 
-class CustomerGridExportAnonymization extends \MageSuite\Gdpr\Plugin\HideCustomerData\AbstractWhitelistedAction
+class CustomerGridExportAnonymization extends \MageSuite\Gdpr\Plugin\HideCustomerData\AbstractGridAnonymization
 {
     protected $grids = [
         'customer_listing_data_source'

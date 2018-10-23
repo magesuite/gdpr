@@ -2,7 +2,7 @@
 
 namespace MageSuite\Gdpr\Plugin\HideCustomerData\Grid;
 
-class SalesGridAnonymization extends \MageSuite\Gdpr\Plugin\HideCustomerData\AbstractWhitelistedAction
+class SalesGridAnonymization extends \MageSuite\Gdpr\Plugin\HideCustomerData\AbstractGridAnonymization
 {
     protected $grids = [
         'sales_order_grid',
