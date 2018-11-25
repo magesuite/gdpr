@@ -28,6 +28,10 @@
         <plugin name="hide_customer_edit" type="MageSuite\Gdpr\Plugin\Adminhtml\Index\AccessDeniedPageOnCustomerEdit" sortOrder="10" />
     </type>
 
+    <type name="Magento\Sales\Controller\Adminhtml\Order\Address">
+        <plugin name="hide_address_edit" type="MageSuite\Gdpr\Plugin\Adminhtml\Order\AccessDeniedPageOnAddressEdit" sortOrder="10" />
+    </type>
+
     <type name="MageSuite\Gdpr\Plugin\HideCustomerData\GridListing">
         <arguments>
             <argument name="grids" xsi:type="array">
