@@ -46,8 +46,8 @@ class GridTest extends AnonymizationTestsCommon
 
         $this->assertEquals('firstname lastname', $orders[0]['shipping_name']);
         $this->assertEquals('firstname lastname', $orders[0]['billing_name']);
-        $this->assertEquals('street Los Angeles CA 11111', $orders[0]['shipping_address']);
-        $this->assertEquals('street Los Angeles CA 11111', $orders[0]['billing_address']);
+        $this->assertContains('Los Angeles', $orders[0]['shipping_address']);
+        $this->assertContains('Los Angeles', $orders[0]['billing_address']);
         $this->assertEquals('customer@null.com', $orders[0]['customer_email']);
     }
 }
