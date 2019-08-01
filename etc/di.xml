@@ -37,6 +37,7 @@
             <argument name="grids" xsi:type="array">
                 <item name="sales" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Grid\SalesGridAnonymization</item>
                 <item name="customer" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Grid\CustomerGridAnonymization</item>
+                <item name="customer_online" xsi:type="object">MageSuite\Gdpr\Plugin\HideCustomerData\Grid\CustomerOnlineGridAnonymization</item>
             </argument>
         </arguments>
     </type>
