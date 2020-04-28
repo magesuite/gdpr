@@ -6,50 +6,47 @@ class OrderViewTest extends AnonymizationTestsCommon
 {
     const ORDER_VIEW_URL = 'backend/sales/order/view/order_id/%s';
 
-    protected $addressData = [
-        'firstname' => 'firstname',
-        'lastname' => 'lastname',
-        'street' => 'street',
-        'city' => 'Los Angeles',
-        'phone' => '11111111',
-        'country' => 'United States',
-    ];
+    /**
+     * @var \Magento\Sales\Model\Order
+     */
+    protected $order;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->order = $this->objectManager->create(\Magento\Sales\Model\Order::class);
+    }
 
     /**
      * @magentoDbIsolation enabled
      * @magentoAppArea adminhtml
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/order.php
-     * @magentoDataFixture addShippingMethodToOrder
      */
     public function testOrderDataIsAnonymyzedByDefault()
     {
-        $body = $this->getOrderViewHtml();
+        $html = $this->getOrderViewHtml();
 
-        $orderInformationHtml = $this->getElementHtml($body, "//*[contains(@class, 'order-account-information')]");
+        $this->assertNotContains(
+            'customer@null.com',
+            $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
+        );
 
-        $this->assertNotContains('customer@null.com', $orderInformationHtml);
+        $this->assertContains(
+            'Payment details are not shown. It may contain personal data.',
+            $this->getElementHtml($html, "//*[contains(@class, 'order-payment-method-title')]")
+        );
 
-        $orderShippingAddressHtml = $this->getElementHtml($body, "//*[contains(@class, 'order-billing-address')]");
-        $orderBillingAddressHtml = $this->getElementHtml($body, "//*[contains(@class, 'order-shipping-address')]");
-        $this->assertAddress('notContains', $orderShippingAddressHtml, $this->addressData);
-        $this->assertAddress('notContains', $orderBillingAddressHtml, $this->addressData);
+        $this->assertAddress(
+            'assertNotContains',
+            $this->getElementHtml($html, "//*[contains(@class, 'order-shipping-address')]")
+        );
 
-        $paymentInformation = $this->getElementHtml($body, "//*[contains(@class, 'order-payment-method-title')]");
-
-        $this->assertContains('Payment details are not shown. It may contain personal data.', $paymentInformation);
-    }
-
-    protected function assertAddress($type, $html, $addressData)
-    {
-        $assertionMethod = $type == 'notContains' ? 'assertNotContains' : 'assertContains';
-
-        $this->$assertionMethod($addressData['firstname'], $html);
-        $this->$assertionMethod($addressData['lastname'], $html);
-        $this->$assertionMethod($addressData['street'], $html);
-        $this->$assertionMethod($addressData['city'], $html);
-        $this->$assertionMethod($addressData['phone'], $html);
-        $this->$assertionMethod($addressData['country'], $html);
+        $this->assertAddress(
+            'assertNotContains',
+            $this->getElementHtml($html, "//*[contains(@class, 'order-billing-address')]")
+        );
     }
 
     /**
@@ -57,27 +54,32 @@ class OrderViewTest extends AnonymizationTestsCommon
      * @magentoAppArea adminhtml
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/order.php
-     * @magentoDataFixture addShippingMethodToOrder
      */
     public function testOrderDataIsNotAnonymyzedWhenUserHasPermissions()
     {
         $this->acl->deny(null, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
 
-        $body = $this->getOrderViewHtml();
+        $html = $this->getOrderViewHtml();
 
-        $orderInformationHtml = $this->getElementHtml($body, "//*[contains(@class, 'order-account-information')]");
+        $this->assertContains(
+            'customer@null.com',
+            $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
+        );
 
-        $this->assertContains('customer@null.com', $orderInformationHtml);
+        $this->assertNotContains(
+            'Payment details are not shown. It may contain personal data.',
+            $this->getElementHtml($html, "//*[contains(@class, 'order-payment-method-title')]")
+        );
 
-        $orderShippingAddressHtml = $this->getElementHtml($body, "//*[contains(@class, 'order-billing-address')]");
-        $orderBillingAddressHtml = $this->getElementHtml($body, "//*[contains(@class, 'order-shipping-address')]");
+        $this->assertAddress(
+            'assertContains',
+            $this->getElementHtml($html, "//*[contains(@class, 'order-shipping-address')]")
+        );
 
-        $this->assertAddress('contains', $orderShippingAddressHtml, $this->addressData);
-        $this->assertAddress('contains', $orderBillingAddressHtml, $this->addressData);
-
-        $paymentInformation = $this->getElementHtml($body, "//*[contains(@class, 'order-payment-method-title')]");
-
-        $this->assertNotContains('Payment details are not shown. It may contain personal data.', $paymentInformation);
+        $this->assertAddress(
+            'assertContains',
+            $this->getElementHtml($html, "//*[contains(@class, 'order-billing-address')]")
+        );
     }
 
     protected function getElementHtml($html, $selector)
@@ -91,41 +93,43 @@ class OrderViewTest extends AnonymizationTestsCommon
         $element = $domXpath->query($selector)->item(0);
 
         $newdoc = new \DOMDocument();
-        $cloned = $element->cloneNode(TRUE);
-        $newdoc->appendChild($newdoc->importNode($cloned, TRUE));
+        $cloned = $element->cloneNode(true);
+        $newdoc->appendChild($newdoc->importNode($cloned, true));
 
         return $newdoc->saveHTML();
     }
 
-    /**
-     * @return mixed
-     */
-    public static function getOrder()
-    {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $order = $objectManager->create(\Magento\Sales\Model\Order::class);
-        return $order->loadByIncrementId('100000001');
-    }
-
-    /**
-     * @return mixed
-     */
     protected function getOrderViewHtml()
     {
-        $order = self::getOrder();
+        $order = $this->order->loadByIncrementId('100000001');
 
         $url = sprintf(self::ORDER_VIEW_URL, $order->getId());
-
         $this->dispatch($url);
 
         return $this->getResponse()->getBody();
     }
 
-    public static function addShippingMethodToOrder()
+    protected function assertAddress($assertionMethod, $html)
     {
-        $order = self::getOrder();
-        $order->setShippingMethod('flatrate_flatrate');
-        $order->save();
+        $addressData = $this->getAddressData();
+
+        $this->$assertionMethod($addressData['firstname'], $html);
+        $this->$assertionMethod($addressData['lastname'], $html);
+        $this->$assertionMethod($addressData['street'], $html);
+        $this->$assertionMethod($addressData['city'], $html);
+        $this->$assertionMethod($addressData['phone'], $html);
+        $this->$assertionMethod($addressData['country'], $html);
+    }
+
+    private function getAddressData()
+    {
+        return [
+            'firstname' => 'firstname',
+            'lastname' => 'lastname',
+            'street' => 'street',
+            'city' => 'Los Angeles',
+            'phone' => '11111111',
+            'country' => 'United States',
+        ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace MageSuite\Gdpr\Test\Integration\Controller\Adminhtml;
 
-class GridTest extends AnonymizationTestsCommon
+class OrderGridTest extends AnonymizationTestsCommon
 {
     const GRID_DATA_PROVIDER_URL = 'backend/mui/index/render/?namespace=sales_order_grid';
 
@@ -12,12 +12,13 @@ class GridTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/order.php
      */
-    public function testGridDataIsAnonymyzedByDefault()
+    public function testOrderGridDataIsAnonymyzedByDefault()
     {
 
         $this->dispatch(self::GRID_DATA_PROVIDER_URL);
+        $html = $this->getResponse()->getBody();
 
-        $gridConfiguration = $this->getGridConfiguration();
+        $gridConfiguration = $this->getGridConfiguration($html);
 
         $orders = $gridConfiguration["*"]["Magento_Ui/js/core/app"]["components"]["sales_order_grid"]["children"]["sales_order_grid_data_source"]["config"]["data"]["items"];
 
@@ -34,13 +35,14 @@ class GridTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/order.php
      */
-    public function testGridDataIsNotAnonymyzedWhenUserHasPermissions()
+    public function testOrderGridDataIsNotAnonymyzedWhenUserHasPermissions()
     {
         $this->acl->deny(null, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
 
         $this->dispatch(self::GRID_DATA_PROVIDER_URL);
+        $html = $this->getResponse()->getBody();
 
-        $gridConfiguration = $this->getGridConfiguration();
+        $gridConfiguration = $this->getGridConfiguration($html);
 
         $orders = $gridConfiguration["*"]["Magento_Ui/js/core/app"]["components"]["sales_order_grid"]["children"]["sales_order_grid_data_source"]["config"]["data"]["items"];
 
