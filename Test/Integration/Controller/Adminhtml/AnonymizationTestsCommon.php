@@ -19,29 +19,27 @@ class AnonymizationTestsCommon extends \Magento\TestFramework\TestCase\AbstractB
         parent::setUp();
 
         $this->objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $this->acl = $this->objectManager
-            ->get(\Magento\Framework\Acl\Builder::class)
-            ->getAcl();
+        $this->acl = $this->objectManager->get(\Magento\Framework\Acl\Builder::class)->getAcl();
     }
 
-    protected function getGridConfiguration()
+    protected function getGridConfiguration($html)
     {
-        $html = $this->getResponse()->getBody();
+        $domDocument = $this->prepareDomDocument($html);
 
-        $pattern = '
-        /
-        \{              # { character
-            (?:         # non-capturing group
-                [^{}]   # anything that is not a { or }
-                |       # OR
-                (?R)    # recurses the entire pattern
-            )*          # previous group zero or more times
-        \}              # } character
-        /x
-        ';
+        $tag = 'script';
+        $content = $domDocument->getElementsByTagname($tag);
 
-        preg_match_all($pattern, $html, $matches);
+        return json_decode($content->item(0)->nodeValue, true);
+    }
 
-        return json_decode($matches[0][0], true);
+    protected function prepareDomDocument($html)
+    {
+        $domDocument = new \DOMDocument('1.0', 'UTF-8');
+
+        libxml_use_internal_errors(true);
+        $domDocument->loadHTML($html);
+        libxml_use_internal_errors(false);
+
+        return $domDocument;
     }
 }
