@@ -33,8 +33,7 @@ class CustomerDataVisibility
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\App\State $state,
         array $whitelistedActions
-    )
-    {
+    ) {
         $this->authorization = $authorization;
         $this->request = $request;
         $this->state = $state;
@@ -43,7 +42,7 @@ class CustomerDataVisibility
 
     public function canSeeCustomerData()
     {
-        return !$this->authorization->isAllowed(self::HIDE_CUSTOMER_DATA_RESOURCE);
+        return $this->authorization->isAllowed(self::HIDE_CUSTOMER_DATA_RESOURCE);
     }
 
     public function shouldDataBeAnonymized()
