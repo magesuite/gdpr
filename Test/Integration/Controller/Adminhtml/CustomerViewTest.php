@@ -11,7 +11,7 @@ class CustomerViewTest extends AnonymizationTestsCommon
      */
     protected $customer;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

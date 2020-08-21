@@ -6,7 +6,7 @@ class CustomerGridTest extends AnonymizationTestsCommon
 {
     const CUSTOMER_GRID_URL = 'backend/mui/index/render/?namespace=customer_listing';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

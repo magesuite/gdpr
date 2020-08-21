@@ -11,7 +11,7 @@ class OrderViewTest extends AnonymizationTestsCommon
      */
     protected $order;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
