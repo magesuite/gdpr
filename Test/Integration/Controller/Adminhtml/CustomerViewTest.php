@@ -31,7 +31,9 @@ class CustomerViewTest extends AnonymizationTestsCommon
         $this->dispatch($url);
         $html = $this->getResponse()->getBody();
 
-        $this->assertContains('You don\'t have permision to view this page.', $html);
+        $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
+
+        $this->$assertContains('You don\'t have permision to view this page.', $html);
     }
 
     /**
@@ -49,7 +51,9 @@ class CustomerViewTest extends AnonymizationTestsCommon
         $this->dispatch($url);
         $html = $this->getResponse()->getBody();
 
-        $this->assertContains('John Smith', $html);
+        $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
+
+        $this->$assertContains('John Smith', $html);
     }
 
     protected function getCustomerId()

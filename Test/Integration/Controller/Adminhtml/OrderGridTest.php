@@ -46,10 +46,12 @@ class OrderGridTest extends AnonymizationTestsCommon
 
         $orders = $gridConfiguration["*"]["Magento_Ui/js/core/app"]["components"]["sales_order_grid"]["children"]["sales_order_grid_data_source"]["config"]["data"]["items"];
 
+        $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
+
         $this->assertEquals('firstname lastname', $orders[0]['shipping_name']);
         $this->assertEquals('firstname lastname', $orders[0]['billing_name']);
-        $this->assertContains('Los Angeles', $orders[0]['shipping_address']);
-        $this->assertContains('Los Angeles', $orders[0]['billing_address']);
+        $this->$assertContains('Los Angeles', $orders[0]['shipping_address']);
+        $this->$assertContains('Los Angeles', $orders[0]['billing_address']);
         $this->assertEquals('customer@null.com', $orders[0]['customer_email']);
     }
 }
