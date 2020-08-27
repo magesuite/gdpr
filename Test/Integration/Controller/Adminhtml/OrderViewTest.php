@@ -11,7 +11,7 @@ class OrderViewTest extends AnonymizationTestsCommon
      */
     protected $order;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -28,12 +28,15 @@ class OrderViewTest extends AnonymizationTestsCommon
     {
         $html = $this->getOrderViewHtml();
 
-        $this->assertNotContains(
+        $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
+        $assertNotContains = method_exists($this, 'assertStringNotContainsString') ? 'assertStringNotContainsString' : 'assertNotContains';
+
+        $this->$assertNotContains(
             'customer@null.com',
             $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
         );
 
-        $this->assertContains(
+        $this->$assertContains(
             'Payment details are not shown. It may contain personal data.',
             $this->getElementHtml($html, "//*[contains(@class, 'order-payment-method-title')]")
         );
@@ -61,12 +64,15 @@ class OrderViewTest extends AnonymizationTestsCommon
 
         $html = $this->getOrderViewHtml();
 
-        $this->assertContains(
+        $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
+        $assertNotContains = method_exists($this, 'assertStringNotContainsString') ? 'assertStringNotContainsString' : 'assertNotContains';
+
+        $this->$assertContains(
             'customer@null.com',
             $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
         );
 
-        $this->assertNotContains(
+        $this->$assertNotContains(
             'Payment details are not shown. It may contain personal data.',
             $this->getElementHtml($html, "//*[contains(@class, 'order-payment-method-title')]")
         );
@@ -112,6 +118,13 @@ class OrderViewTest extends AnonymizationTestsCommon
     protected function assertAddress($assertionMethod, $html)
     {
         $addressData = $this->getAddressData();
+
+        if($assertionMethod == 'assertContains') {
+            $assertionMethod = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
+        }
+        else if($assertionMethod == 'assertNotContains') {
+            $assertionMethod = method_exists($this, 'assertStringNotContainsString') ? 'assertStringNotContainsString' : 'assertNotContains';
+        }
 
         $this->$assertionMethod($addressData['firstname'], $html);
         $this->$assertionMethod($addressData['lastname'], $html);

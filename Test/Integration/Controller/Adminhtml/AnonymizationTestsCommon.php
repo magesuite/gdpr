@@ -14,7 +14,7 @@ class AnonymizationTestsCommon extends \Magento\TestFramework\TestCase\AbstractB
      */
     protected $acl;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
