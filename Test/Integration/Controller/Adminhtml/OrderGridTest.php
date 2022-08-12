@@ -20,12 +20,25 @@ class OrderGridTest extends AnonymizationTestsCommon
 
         $gridConfiguration = $this->getGridConfiguration($html);
 
+        $productMetadata = $this->objectManager->get(\Magento\Framework\App\ProductMetadataInterface::class);
+        $version = $productMetadata->getVersion();
+
         $orders = $gridConfiguration["*"]["Magento_Ui/js/core/app"]["components"]["sales_order_grid"]["children"]["sales_order_grid_data_source"]["config"]["data"]["items"];
 
         $this->assertEquals('f*****************', $orders[0]['shipping_name']);
         $this->assertEquals('f*****************', $orders[0]['billing_name']);
-        $this->assertEquals('s**************************', $orders[0]['shipping_address']);
-        $this->assertEquals('s**************************', $orders[0]['billing_address']);
+
+        // from Magento 2.4.4
+        // dev/tests/integration/testsuite/Magento/Sales/_files/address_data.php fixture
+        // contains company name that affects shipping and billing address output
+        if(version_compare($version, '2.4.4', '>=')) {
+            $this->assertEquals('T***************************************', $orders[0]['shipping_address']);
+            $this->assertEquals('T***************************************', $orders[0]['billing_address']);
+        } else {
+            $this->assertEquals('s**************************', $orders[0]['shipping_address']);
+            $this->assertEquals('s**************************', $orders[0]['billing_address']);
+        }
+
         $this->assertEquals('c****************', $orders[0]['customer_email']);
     }
 
