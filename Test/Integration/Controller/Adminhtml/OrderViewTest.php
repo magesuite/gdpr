@@ -31,10 +31,20 @@ class OrderViewTest extends AnonymizationTestsCommon
         $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
         $assertNotContains = method_exists($this, 'assertStringNotContainsString') ? 'assertStringNotContainsString' : 'assertNotContains';
 
-        $this->$assertNotContains(
-            'customer@null.com',
-            $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
-        );
+        $productMetadata = $this->objectManager->get(\Magento\Framework\App\ProductMetadataInterface::class);
+        $version = $productMetadata->getVersion();
+
+        if (version_compare($version, '2.4.5', '>=')) {
+            $this->$assertNotContains(
+                'customer@example.com',
+                $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
+            );
+        } else {
+            $this->$assertNotContains(
+                'customer@null.com',
+                $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
+            );
+        }
 
         $this->$assertContains(
             'Payment details are not shown. It may contain personal data.',
@@ -62,15 +72,25 @@ class OrderViewTest extends AnonymizationTestsCommon
     {
         $this->acl->deny(null, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
 
+        $productMetadata = $this->objectManager->get(\Magento\Framework\App\ProductMetadataInterface::class);
+        $version = $productMetadata->getVersion();
+
         $html = $this->getOrderViewHtml();
 
         $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
         $assertNotContains = method_exists($this, 'assertStringNotContainsString') ? 'assertStringNotContainsString' : 'assertNotContains';
 
-        $this->$assertContains(
-            'customer@null.com',
-            $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
-        );
+        if (version_compare($version, '2.4.5', '>=')) {
+            $this->$assertContains(
+                'customer@example.com',
+                $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
+            );
+        } else {
+            $this->$assertContains(
+                'customer@null.com',
+                $this->getElementHtml($html, "//*[contains(@class, 'order-account-information')]")
+            );
+        }
 
         $this->$assertNotContains(
             'Payment details are not shown. It may contain personal data.',
@@ -119,10 +139,9 @@ class OrderViewTest extends AnonymizationTestsCommon
     {
         $addressData = $this->getAddressData();
 
-        if($assertionMethod == 'assertContains') {
+        if ($assertionMethod == 'assertContains') {
             $assertionMethod = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
-        }
-        else if($assertionMethod == 'assertNotContains') {
+        } else if ($assertionMethod == 'assertNotContains') {
             $assertionMethod = method_exists($this, 'assertStringNotContainsString') ? 'assertStringNotContainsString' : 'assertNotContains';
         }
 

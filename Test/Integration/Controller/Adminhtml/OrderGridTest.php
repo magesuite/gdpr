@@ -31,7 +31,7 @@ class OrderGridTest extends AnonymizationTestsCommon
         // from Magento 2.4.4
         // dev/tests/integration/testsuite/Magento/Sales/_files/address_data.php fixture
         // contains company name that affects shipping and billing address output
-        if(version_compare($version, '2.4.4', '>=')) {
+        if (version_compare($version, '2.4.4', '>=')) {
             $this->assertEquals('T***************************************', $orders[0]['shipping_address']);
             $this->assertEquals('T***************************************', $orders[0]['billing_address']);
         } else {
@@ -39,7 +39,11 @@ class OrderGridTest extends AnonymizationTestsCommon
             $this->assertEquals('s**************************', $orders[0]['billing_address']);
         }
 
-        $this->assertEquals('c****************', $orders[0]['customer_email']);
+        if (version_compare($version, '2.4.5', '>=')) {
+            $this->assertEquals('c*******************', $orders[0]['customer_email']);
+        } else {
+            $this->assertEquals('c****************', $orders[0]['customer_email']);
+        }
     }
 
     /**
@@ -50,6 +54,9 @@ class OrderGridTest extends AnonymizationTestsCommon
      */
     public function testOrderGridDataIsNotAnonymyzedWhenUserHasPermissions()
     {
+        $productMetadata = $this->objectManager->get(\Magento\Framework\App\ProductMetadataInterface::class);
+        $version = $productMetadata->getVersion();
+
         $this->acl->deny(null, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
 
         $this->dispatch(self::GRID_DATA_PROVIDER_URL);
@@ -65,6 +72,11 @@ class OrderGridTest extends AnonymizationTestsCommon
         $this->assertEquals('firstname lastname', $orders[0]['billing_name']);
         $this->$assertContains('Los Angeles', $orders[0]['shipping_address']);
         $this->$assertContains('Los Angeles', $orders[0]['billing_address']);
-        $this->assertEquals('customer@null.com', $orders[0]['customer_email']);
+
+        if (version_compare($version, '2.4.5', '>=')) {
+            $this->assertEquals('customer@example.com', $orders[0]['customer_email']);
+        } else {
+            $this->assertEquals('customer@null.com', $orders[0]['customer_email']);
+        }
     }
 }
