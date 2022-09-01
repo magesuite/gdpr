@@ -53,6 +53,10 @@ class AbstractHider
 
     protected function fillStringWithStars($string)
     {
+        if($string === null) {
+            return null;
+        }
+
         $length = mb_strlen($string);
 
         if ($length < 2) {
