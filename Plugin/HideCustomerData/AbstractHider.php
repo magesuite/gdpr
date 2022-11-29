@@ -53,6 +53,10 @@ class AbstractHider
 
     protected function fillStringWithStars($string)
     {
+        if($string === null) {
+            return null;
+        }
+
         $length = mb_strlen($string);
 
         if ($length < 2) {
@@ -82,6 +86,10 @@ class AbstractHider
      */
     protected function isDate($string)
     {
+        if($string === null) {
+            return false;
+        }
+
         return preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $string);
     }
 }
