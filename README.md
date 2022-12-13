@@ -1,1 +1,1 @@
-https://creativestyle.atlassian.net/wiki/spaces/MGSDEV/pages/2280718383/Gdpr
+https://creativestyle.atlassian.net/wiki/spaces/MGSDEV/pages/2303557633/Gdpr
