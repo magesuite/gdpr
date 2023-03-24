@@ -42,7 +42,8 @@ class CustomerGridTest extends AnonymizationTestsCommon
      */
     public function testCustomerSectionIsNotAnonymyzedhenUserHasPermissions()
     {
-        $this->acl->deny(null, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
+        $roles = $this->acl->getAcl()->getRoles();
+        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
 
         $this->dispatch(self::CUSTOMER_GRID_URL);
         $html = $this->getResponse()->getBody();

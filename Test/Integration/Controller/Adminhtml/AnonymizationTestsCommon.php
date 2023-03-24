@@ -16,10 +16,9 @@ class AnonymizationTestsCommon extends \Magento\TestFramework\TestCase\AbstractB
 
     public function setUp(): void
     {
-        parent::setUp();
-
         $this->objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $this->acl = $this->objectManager->get(\Magento\Framework\Acl\Builder::class)->getAcl();
+        $this->acl = $this->objectManager->get(\Magento\Framework\Acl\Builder::class);
+        parent::setUp();
     }
 
     protected function getGridConfiguration($html)
