@@ -57,7 +57,8 @@ class OrderGridTest extends AnonymizationTestsCommon
         $productMetadata = $this->objectManager->get(\Magento\Framework\App\ProductMetadataInterface::class);
         $version = $productMetadata->getVersion();
 
-        $this->acl->deny(null, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
+        $roles = $this->acl->getAcl()->getRoles();
+        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
 
         $this->dispatch(self::GRID_DATA_PROVIDER_URL);
         $html = $this->getResponse()->getBody();

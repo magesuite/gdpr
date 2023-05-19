@@ -44,7 +44,8 @@ class CustomerViewTest extends AnonymizationTestsCommon
      */
     public function testCustomerPageWhileUserHavePermissions()
     {
-        $this->acl->deny(null, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
+        $roles = $this->acl->getAcl()->getRoles();
+        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
 
         $url = sprintf(self::CUSTOMER_VIEW_URL, $this->getCustomerId());
 
