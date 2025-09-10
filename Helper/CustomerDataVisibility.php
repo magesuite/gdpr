@@ -1,66 +1,46 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\Gdpr\Helper;
 
 class CustomerDataVisibility
 {
-
-    const HIDE_CUSTOMER_DATA_RESOURCE = 'MageSuite_Gdpr::hide_customer_data';
-
-    /**
-     * Actions that should return anonymised data
-     * @var \MageSuite\Gdpr\Plugin\HideCustomerData\AbstractWhitelistedAction[]
-     */
-    protected $whitelistedActions = [];
-
-    /**
-     * @var \Magento\Framework\AuthorizationInterface
-     */
-    protected $authorization;
-
-    /**
-     * @var \Magento\Framework\App\Request\Http
-     */
-    protected $request;
-
-    /**
-     * @var \Magento\Framework\App\State
-     */
-    protected $state;
+    public const SHOW_CUSTOMER_DATA_RESOURCE = 'MageSuite_Gdpr::show_customer_data';
 
     public function __construct(
-        \Magento\Framework\AuthorizationInterface $authorization,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\App\State $state,
-        array $whitelistedActions
-    )
+        protected \Magento\Framework\AuthorizationInterface $authorization,
+        protected \Magento\Framework\App\Request\Http $request,
+        protected \Magento\Framework\App\State $state,
+        /** @var \MageSuite\Gdpr\Plugin\HideCustomerData\AbstractAnonymizedAction[] $anonymizedActionsProviders */
+        protected array $anonymizedActionsProviders
+    ) {}
+
+    public function canSeeCustomerData(): bool
     {
-        $this->authorization = $authorization;
-        $this->request = $request;
-        $this->state = $state;
-        $this->whitelistedActions = $whitelistedActions;
+        return $this->authorization->isAllowed(self::SHOW_CUSTOMER_DATA_RESOURCE);
     }
 
-    public function canSeeCustomerData()
+    public function shouldDataBeAnonymized(): bool
     {
-        return !$this->authorization->isAllowed(self::HIDE_CUSTOMER_DATA_RESOURCE);
-    }
+        try {
+            $areaCode = $this->state->getAreaCode();
+        } catch (\Exception) {
+            return false;
+        }
 
-    public function shouldDataBeAnonymized()
-    {
-        $areaCode = $this->state->getAreaCode();
-
-        if ($areaCode !== 'adminhtml') {
+        if ($areaCode !== \Magento\Framework\App\Area::AREA_ADMINHTML) {
             return false;
         }
 
         $action = $this->request->getFullActionName();
 
-        foreach ($this->whitelistedActions as $actionsList) {
-            if (in_array($action, $actionsList->getWhitelistedActions())) {
+        foreach ($this->anonymizedActionsProviders as $actionsList) {
+            if (in_array($action, $actionsList->getAnonymizedActions())) {
                 return true;
             }
         }
+
         return false;
     }
 }

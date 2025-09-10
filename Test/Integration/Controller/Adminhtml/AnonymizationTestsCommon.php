@@ -1,27 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\Gdpr\Test\Integration\Controller\Adminhtml;
 
 class AnonymizationTestsCommon extends \Magento\TestFramework\TestCase\AbstractBackendController
 {
-    /**
-     * @var \Magento\Framework\App\ObjectManager
-     */
-    protected $objectManager;
-
-    /**
-     * @var \Magento\Framework\Acl
-     */
-    protected $acl;
+    protected ?\Magento\Framework\App\ObjectManager $objectManager = null;
+    protected ?\Magento\Framework\Acl\Builder $acl = null;
 
     public function setUp(): void
     {
         $this->objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $this->acl = $this->objectManager->get(\Magento\Framework\Acl\Builder::class);
+
         parent::setUp();
     }
 
-    protected function getGridConfiguration($html)
+    protected function getGridConfiguration(string $html): array
     {
         $domDocument = $this->prepareDomDocument($html);
 
@@ -31,7 +27,7 @@ class AnonymizationTestsCommon extends \Magento\TestFramework\TestCase\AbstractB
         return json_decode($content->item(0)->nodeValue, true);
     }
 
-    protected function prepareDomDocument($html)
+    protected function prepareDomDocument(string $html): \DOMDocument
     {
         $domDocument = new \DOMDocument('1.0', 'UTF-8');
 

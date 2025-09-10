@@ -1,15 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\Gdpr\Test\Integration\Controller\Adminhtml;
 
 class OrderViewTest extends AnonymizationTestsCommon
 {
-    const ORDER_VIEW_URL = 'backend/sales/order/view/order_id/%s';
+    public const ORDER_VIEW_URL = 'backend/sales/order/view/order_id/%s';
 
-    /**
-     * @var \Magento\Sales\Model\Order
-     */
-    protected $order;
+    protected ?\Magento\Sales\Model\Order $order = null;
 
     public function setUp(): void
     {
@@ -24,8 +23,11 @@ class OrderViewTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/order.php
      */
-    public function testOrderDataIsAnonymyzedByDefault()
+    public function testOrderViewWithAccessDenied(): void
     {
+        $roles = $this->acl->getAcl()->getRoles();
+        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::SHOW_CUSTOMER_DATA_RESOURCE);
+
         $html = $this->getOrderViewHtml();
 
         $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
@@ -68,10 +70,10 @@ class OrderViewTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/order.php
      */
-    public function testOrderDataIsNotAnonymyzedWhenUserHasPermissions()
+    public function testOrderViewWithAccessGranted(): void
     {
         $roles = $this->acl->getAcl()->getRoles();
-        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
+        $this->acl->getAcl()->allow($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::SHOW_CUSTOMER_DATA_RESOURCE);
 
         $productMetadata = $this->objectManager->get(\Magento\Framework\App\ProductMetadataInterface::class);
         $version = $productMetadata->getVersion();
@@ -109,7 +111,7 @@ class OrderViewTest extends AnonymizationTestsCommon
         );
     }
 
-    protected function getElementHtml($html, $selector)
+    protected function getElementHtml(string $html, string $selector): string
     {
         $domDocument = new \DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
@@ -126,7 +128,7 @@ class OrderViewTest extends AnonymizationTestsCommon
         return $newdoc->saveHTML();
     }
 
-    protected function getOrderViewHtml()
+    protected function getOrderViewHtml(): string
     {
         $order = $this->order->loadByIncrementId('100000001');
 
@@ -136,15 +138,15 @@ class OrderViewTest extends AnonymizationTestsCommon
         return $this->getResponse()->getBody();
     }
 
-    protected function assertAddress($assertionMethod, $html)
+    protected function assertAddress(string $assertionMethod, string $html): void
     {
         $addressData = $this->getAddressData();
 
-        if ($assertionMethod == 'assertContains') {
-            $assertionMethod = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
-        } else if ($assertionMethod == 'assertNotContains') {
-            $assertionMethod = method_exists($this, 'assertStringNotContainsString') ? 'assertStringNotContainsString' : 'assertNotContains';
-        }
+        $assertionMethod = match ($assertionMethod) {
+            'assertContains' => (method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains'),
+            'assertNotContains' => (method_exists($this, 'assertStringNotContainsString') ? 'assertStringNotContainsString' : 'assertNotContains'),
+            default => $assertionMethod,
+        };
 
         $this->$assertionMethod($addressData['firstname'], $html);
         $this->$assertionMethod($addressData['lastname'], $html);
@@ -154,7 +156,7 @@ class OrderViewTest extends AnonymizationTestsCommon
         $this->$assertionMethod($addressData['country'], $html);
     }
 
-    private function getAddressData()
+    private function getAddressData(): array
     {
         return [
             'firstname' => 'firstname',
