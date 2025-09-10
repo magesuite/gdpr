@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\Gdpr\Test\Integration\Controller\Adminhtml;
 
 class OrderGridTest extends AnonymizationTestsCommon
 {
-    const GRID_DATA_PROVIDER_URL = 'backend/mui/index/render/?namespace=sales_order_grid';
+    public const GRID_DATA_PROVIDER_URL = 'backend/mui/index/render/?namespace=sales_order_grid';
 
     /**
      * @magentoDbIsolation enabled
@@ -12,8 +14,10 @@ class OrderGridTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/order.php
      */
-    public function testOrderGridDataIsAnonymyzedByDefault()
+    public function testOrderGridWithAccessDenied(): void
     {
+        $roles = $this->acl->getAcl()->getRoles();
+        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::SHOW_CUSTOMER_DATA_RESOURCE);
 
         $this->dispatch(self::GRID_DATA_PROVIDER_URL);
         $html = $this->getResponse()->getBody();
@@ -52,13 +56,13 @@ class OrderGridTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/order.php
      */
-    public function testOrderGridDataIsNotAnonymyzedWhenUserHasPermissions()
+    public function testOrderGridWithAccessGranted(): void
     {
         $productMetadata = $this->objectManager->get(\Magento\Framework\App\ProductMetadataInterface::class);
         $version = $productMetadata->getVersion();
 
         $roles = $this->acl->getAcl()->getRoles();
-        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
+        $this->acl->getAcl()->allow($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::SHOW_CUSTOMER_DATA_RESOURCE);
 
         $this->dispatch(self::GRID_DATA_PROVIDER_URL);
         $html = $this->getResponse()->getBody();
