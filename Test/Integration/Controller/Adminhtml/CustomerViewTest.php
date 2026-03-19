@@ -1,15 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\Gdpr\Test\Integration\Controller\Adminhtml;
 
 class CustomerViewTest extends AnonymizationTestsCommon
 {
-    const CUSTOMER_VIEW_URL = 'backend/customer/index/edit/id/%s/';
+    public const CUSTOMER_VIEW_URL = 'backend/customer/index/edit/id/%s/';
 
-    /**
-     * @var \Magento\Customer\Model\Customer
-     */
-    protected $customer;
+    protected ?\Magento\Customer\Model\Customer $customer = null;
 
     public function setUp(): void
     {
@@ -24,8 +23,10 @@ class CustomerViewTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Customer/_files/customer.php
      */
-    public function testAccessDeniedPage()
+    public function testCustomerViewWithAccessDenied(): void
     {
+        $this->denyAccess();
+
         $url = sprintf(self::CUSTOMER_VIEW_URL, $this->getCustomerId());
 
         $this->dispatch($url);
@@ -33,7 +34,7 @@ class CustomerViewTest extends AnonymizationTestsCommon
 
         $assertContains = method_exists($this, 'assertStringContainsString') ? 'assertStringContainsString' : 'assertContains';
 
-        $this->$assertContains('You don\'t have permision to view this page.', $html);
+        $this->$assertContains('You don\'t have permission to view this page.', $html);
     }
 
     /**
@@ -42,10 +43,9 @@ class CustomerViewTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Customer/_files/customer.php
      */
-    public function testCustomerPageWhileUserHavePermissions()
+    public function testCustomerViewWithAccessGranted(): void
     {
-        $roles = $this->acl->getAcl()->getRoles();
-        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
+        $this->grantAccess();
 
         $url = sprintf(self::CUSTOMER_VIEW_URL, $this->getCustomerId());
 
@@ -57,11 +57,11 @@ class CustomerViewTest extends AnonymizationTestsCommon
         $this->$assertContains('John Smith', $html);
     }
 
-    protected function getCustomerId()
+    protected function getCustomerId(): int
     {
         $this->customer->setWebsiteId(1);
         $this->customer->loadByEmail('customer@example.com');
 
-        return $this->customer->getId();
+        return (int)$this->customer->getId();
     }
 }

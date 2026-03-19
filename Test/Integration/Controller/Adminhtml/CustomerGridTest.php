@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\Gdpr\Test\Integration\Controller\Adminhtml;
 
 class CustomerGridTest extends AnonymizationTestsCommon
 {
-    const CUSTOMER_GRID_URL = 'backend/mui/index/render/?namespace=customer_listing';
+    public const CUSTOMER_GRID_URL = 'backend/mui/index/render/?namespace=customer_listing';
 
     public function setUp(): void
     {
@@ -21,8 +23,10 @@ class CustomerGridTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Customer/_files/customer.php
      */
-    public function testCustomerSectionIsAnonymyzedByDefault()
+    public function testCustomerGridWithAccessDenied(): void
     {
+        $this->denyAccess();
+
         $this->dispatch(self::CUSTOMER_GRID_URL);
         $html = $this->getResponse()->getBody();
 
@@ -40,10 +44,9 @@ class CustomerGridTest extends AnonymizationTestsCommon
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Customer/_files/customer.php
      */
-    public function testCustomerSectionIsNotAnonymyzedhenUserHasPermissions()
+    public function testCustomerGridWithAccessGranted(): void
     {
-        $roles = $this->acl->getAcl()->getRoles();
-        $this->acl->getAcl()->deny($roles, \MageSuite\Gdpr\Helper\CustomerDataVisibility::HIDE_CUSTOMER_DATA_RESOURCE);
+        $this->grantAccess();
 
         $this->dispatch(self::CUSTOMER_GRID_URL);
         $html = $this->getResponse()->getBody();
