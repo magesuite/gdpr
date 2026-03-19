@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MageSuite\Gdpr\Model\HideCustomerData\Grid;
+
+class CustomerGridAnonymization extends \MageSuite\Gdpr\Model\HideCustomerData\AbstractGridAnonymization
+{
+    protected array $grids = [
+        'customer_listing'
+    ];
+
+    protected array $dataKeys = [
+        'name',
+        'email',
+        'billing_firstname',
+        'billing_lastname',
+        'billing_telephone',
+        'billing_postcode',
+        'billing_region',
+        'billing_street',
+        'billing_city',
+        'billing_fax',
+        'billing_vat_id',
+        'billing_company',
+        'dob',
+        'taxvat'
+    ];
+}

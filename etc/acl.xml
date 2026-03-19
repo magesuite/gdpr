@@ -3,9 +3,7 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
-                <resource id="MageSuite_Gdpr::gdpr" title="GDPR" sortOrder="600">
-                    <resource id="MageSuite_Gdpr::hide_customer_data" title="Hide customer data" sortOrder="200" />
-                </resource>
+                <resource id="MageSuite_Gdpr::gdpr_config" title="GDPR Configuration" sortOrder="600"/>
             </resource>
         </resources>
     </acl>
