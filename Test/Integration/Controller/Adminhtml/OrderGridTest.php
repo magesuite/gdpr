@@ -31,10 +31,15 @@ class OrderGridTest extends AnonymizationTestsCommon
         $this->assertEquals('f*****************', $orders[0]['shipping_name']);
         $this->assertEquals('f*****************', $orders[0]['billing_name']);
 
+        // from Magento 2.4.9
+        // contains country code that affects shipping and billing address output
+        if (version_compare($version, '2.4.9', '>=')) {
+            $this->assertEquals('T******************************************', $orders[0]['shipping_address']);
+            $this->assertEquals('T******************************************', $orders[0]['billing_address']);
         // from Magento 2.4.4
         // dev/tests/integration/testsuite/Magento/Sales/_files/address_data.php fixture
         // contains company name that affects shipping and billing address output
-        if (version_compare($version, '2.4.4', '>=')) {
+        } else if (version_compare($version, '2.4.4', '>=')) {
             $this->assertEquals('T***************************************', $orders[0]['shipping_address']);
             $this->assertEquals('T***************************************', $orders[0]['billing_address']);
         } else {
